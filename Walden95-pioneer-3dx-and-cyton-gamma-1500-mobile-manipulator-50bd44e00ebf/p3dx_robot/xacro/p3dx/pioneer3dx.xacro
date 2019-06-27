@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="pioneer3dx" >
+
+  <!-- Import Rviz colors -->
+  <xacro:include filename="$(find p3dx_robot)/xacro/materials.xacro" />
+
+  <!-- Import robot -->
+  <xacro:include filename="$(find p3dx_robot)/xacro/p3dx/pioneer3dx_body.xacro"/>
+  <xacro:pioneer3dx_body name="chassis" parent="p3dx_base_link" meshes="package://p3dx_robot/meshes/p3dx"/>
+
+  <!-- Laser  -->
+  <xacro:include filename="$(find p3dx_robot)/xacro/laser/hokuyo.xacro"/>
+  <xacro:laser name="front_laser" parent="chassis" xyz="0.16 0 0.1" rpy="0 0 0" meshes="package://p3dx_robot/meshes/laser"/>
+
+  <!--xacro:include filename="$(find cyton_gamma_1500_description)/cyton_gamma_1500.urdf"/>
+  <joint name="p3dx_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="base_footprint"/>
+    <origin rpy="0 0 0" xyz="0 0 .235"/>
+  </joint-->
+
+
+  <!-- GPU Laser
+  <xacro:include filename="$(find gazebo_plugins)/test/multi_robot_scenario/xacro/laser/hokuyo_gpu.xacro"/>
+  <xacro:laser_gpu name="front_laser" parent="chassis" xyz="0.16 0 0.1" rpy="0 0 0" meshes="package://gazebo_plugins/test/multi_robot_scenario/meshes/laser" />
+    -->
+  <!--xacro:include filename="$(find p3dx_robot)/xacro/camera/camera.xacro"/>
+  <xacro:cam name="front_camera" parent="chassis" xyz="0 0 0.5" rpy="0 0 0" /-->
+
+</robot>
