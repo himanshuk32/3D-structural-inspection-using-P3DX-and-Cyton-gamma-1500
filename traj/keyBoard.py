@@ -38,7 +38,6 @@ while(keyPress != USER_QUIT):
 	elif((keyPress == KEY_RIGHT) and (left >= MIN_LEFT)):
 		left -= 0.05
 
-	# max backward/forward speed is 1.2 m/s
 	if(forward > MAX_FORWARD):
 		forward = MAX_FORWARD
 	elif(forward < MIN_FORWARD):
@@ -48,7 +47,8 @@ while(keyPress != USER_QUIT):
 		left = MAX_LEFT
 	elif(left < MIN_LEFT):
 		left = MIN_LEFT
-
+	
+	print "linear = ", float(int(forward*100)/100.0), " angular = ",float(int(left*100)/100.0)
 	twist.linear.x = forward
 	twist.angular.z = left
 	pub.publish(twist)

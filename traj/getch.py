@@ -60,16 +60,16 @@ def getArrow():
 			if(ord(myKey) == 91):
 				myKey = getch()
 				if ord(myKey) == KEY_UP:
-					print "increase wheel velocities\n"
+					#print "increase wheel velocities\n"
 					return KEY_UP
 				elif ord(myKey) == KEY_DOWN:
-					print "decrease wheel velocities\n"
+					#print "decrease wheel velocities\n"
 					return KEY_DOWN
 				elif ord(myKey) == KEY_LEFT:
-					print "turn left\n"
+					#print "turn left\n"
 					return KEY_LEFT
 				elif ord(myKey) == KEY_RIGHT:
-					print "turn right\n"
+					#print "turn right\n"
 					return KEY_RIGHT
 				else:
 					myKey = getch()

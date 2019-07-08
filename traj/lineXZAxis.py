@@ -34,7 +34,7 @@ simulating = True
 mobile = False
 
 robotBaseName = "Pioneer 3DX"
-rospy.init_node('controlBoth',anonymous=True)
+rospy.init_node('lineXZAxis',anonymous=True)
 robot = moveit_commander.RobotCommander()
 scene = moveit_commander.PlanningSceneInterface()
 group = moveit_commander.MoveGroupCommander("cyton1500_group")
