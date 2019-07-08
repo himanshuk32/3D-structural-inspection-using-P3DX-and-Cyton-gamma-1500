@@ -54,7 +54,7 @@ def getArrow():
 
 	# do not stop unless user quits with 'q'
 	while(myKey != 'q'):
-                print "ENTER ARROW KEY OR QUIT WITH 'q'"
+                #print "ENTER ARROW KEY OR QUIT WITH 'q'"
 		if (ord(myKey) == 27):
 			myKey = getch()
 			if(ord(myKey) == 91):

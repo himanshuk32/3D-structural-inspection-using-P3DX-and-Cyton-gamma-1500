@@ -12,6 +12,7 @@ import sys
 import copy
 import matplotlib.pyplot as plt
 import os
+import tf
 
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Vector3
@@ -20,7 +21,7 @@ from geometry_msgs.msg import Pose
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Bool
 from sensor_msgs.msg import LaserScan
-
+from math import *
 pi = 3.141592635
 
 debug = False
@@ -34,9 +35,19 @@ group = moveit_commander.MoveGroupCommander("cyton1500_group")
 while not rospy.is_shutdown():
 	
 	manipCurrentPose = group.get_current_pose().pose
-	ang_z = float((manipCurrentPose.orientation.z*180.0)/pi)
-	ang_x = float((manipCurrentPose.orientation.x*180.0)/pi)	
-	ang_y = float((manipCurrentPose.orientation.y*180.0)/pi)	
-	print " manipulator's  X = ",manipCurrentPose.position.x,"  Y = ",manipCurrentPose.position.y, "  Z = ",manipCurrentPose.position.z
-	#print "  angle X = ",ang_x," angle Y = ",ang_y, " angle Z = ",ang_z 
+	manipQuaternion = (
+	    manipCurrentPose.orientation.x,
+	    manipCurrentPose.orientation.y,
+	    manipCurrentPose.orientation.z,
+	    manipCurrentPose.orientation.w)
+	manipEuler = tf.transformations.euler_from_quaternion(manipQuaternion)
+	manippRoll = manipEuler[0]*180/pi
+	manippPitch = manipEuler[1]*180/pi
+	manippYaw = manipEuler[2]*180/pi
+	manipPos_x = manipCurrentPose.position.x
+	manipPos_y = manipCurrentPose.position.y
+	manipPos_z = manipCurrentPose.position.z
+
+	#print " manipulator's  X = ",manipCurrentPose.position.x,"  Y = ",manipCurrentPose.position.y, "  Z = ",manipCurrentPose.position.z
+	print "  angle X = ",manippRoll," angle Y = ",manippPitch, " angle Z = ",manippYaw 
 	time.sleep(0.1)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# imports
+# imports /home/himanshu/catkin_ws/src/P3DX-and-Cyton-gamma-1500/Walden95-pioneer-3dx-and-cyton-gamma-1500-mobile-manipulator-50bd44e00ebf/base-arm_fusion/p3dx_cyton1500_fusion/xacro
 
 import rospy
 import moveit_commander
@@ -42,11 +42,6 @@ group = moveit_commander.MoveGroupCommander("cyton1500_group")
 defaultPose = [-0.00798111114703, -0.00240289023425, 0.973910607185, 3.55992334659e-05, 2.53591989399e-05, 0.707060385227, 0.707153172752]
 manipPose1 = [0.441024004555, -0.0157218288562, 0.402612554019, 0.527145535299, 0.477387854476, 0.486045011226, 0.50791600494]
 manipPose2 = [0.01, 0.3, 0.55, 0, 0, 0, 0.707]
-
-#velPub.publish(Twist(Vector3(0, 0, 0), Vector3(0, 0, 0.25)))
-time.sleep(0.5)
-#stopBot()
-time.sleep(0.5)
 
 pose = Pose()
 setManipPose(pose, manipPose1)
