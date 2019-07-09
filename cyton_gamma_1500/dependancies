@@ -1,0 +1,9 @@
+ROS kinetic,
+
+ros_control
+
+ros_gazebo_control
+
+moveit
+
+etc (should get you started enough for the errors to point you to the missing things)
