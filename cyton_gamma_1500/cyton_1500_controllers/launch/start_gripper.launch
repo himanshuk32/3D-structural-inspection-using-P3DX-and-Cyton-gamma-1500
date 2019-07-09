@@ -1,0 +1,14 @@
+<launch>
+	<rosparam file="$(find cyton_1500_controllers)/gripper_controller.yaml" command="load"/>
+
+	<node name="another_cyton_controller_spawner" pkg="dynamixel_controllers" type="controller_spawner.py" args="--manager=cyton_manager --port port_0 --type=simple
+		gripper_position_controller
+		"
+		output="screen"/>
+
+	  <node name="another_cyton_action_controller_spawner" pkg="dynamixel_controllers" type="controller_spawner.py" args="--manager=cyton_manager --type=meta 
+		gripper_position_controller
+		"
+		output="screen"/>
+
+</launch>
