@@ -1,0 +1,17 @@
+<launch>
+  <param name="robot_description" textfile="$(find cyton_gamma_1500_description)/cyton_gamma_1500.urdf" />
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch" />
+
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+        args="-param robot_description -urdf -model cyton_gamma_1500" />
+
+  <rosparam file="$(find cyton_gamma_pkg)/controllers_1500.yaml" command="load"/>
+
+  <node name="controller_spawner" pkg="controller_manager" type="spawner"
+        args="cyton_joint_trajectory_action_controller"/>
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher"
+        type="robot_state_publisher"/>
+
+</launch>

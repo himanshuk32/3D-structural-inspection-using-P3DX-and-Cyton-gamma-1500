@@ -1,0 +1,32 @@
+<launch>
+  <!-- The planning and execution components of Steve's motion planner -->
+<!-- Starts the moveit manager -->
+  <include file="$(find gamma_1500_moveit_config)/launch/cyton_gamma_1500_moveit_controller_manager.launch.xml" />
+
+<!-- loads non-standard joint_names -->
+  <rosparam command="load" file="$(find gamma_1500_moveit_config)/config/joint_names.yaml"/>
+
+<!-- Starts planning context -->
+  <include file="$(find gamma_1500_moveit_config)/launch/planning_context.launch" >
+    <arg name="load_robot_description" value="true" />
+  </include>
+
+<!-- Starts the start publisher  -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+<!-- Starts the moveit planner -->
+  <include file="$(find gamma_1500_moveit_config)/launch/move_group.launch">
+    <arg name="publish_monitored_planning_scene" value="true" />
+  </include>
+
+<!-- custom rviz interface for command center-->
+  <include file="$(find gamma_1500_moveit_config)/launch/moveit_rviz.launch">
+    <arg name="config" value="true"/>
+  </include>
+  
+<!-- Starts warehouse -->
+  <include file="$(find gamma_1500_moveit_config)/launch/default_warehouse_db.launch" />
+
+  <param name="/move_group/trajectory_execution/allowed_execution_duration_scaling" value="6.0"/>
+
+</launch>
