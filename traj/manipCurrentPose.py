@@ -32,15 +32,19 @@ robotBaseName = "Pioneer 3DX"
 rospy.init_node('manipCurrentPose',anonymous=True)
 group = moveit_commander.MoveGroupCommander("cyton1500_group")
 
+def quaternionToEuler(quaternionPose):
+	quaternion = (
+	    quaternionPose.orientation.x,
+	    quaternionPose.orientation.y,
+	    quaternionPose.orientation.z,
+	    quaternionPose.orientation.w)	
+	euler = tf.transformations.euler_from_quaternion(quaternion)
+	return euler
+
 while not rospy.is_shutdown():
 	
 	manipCurrentPose = group.get_current_pose().pose
-	manipQuaternion = (
-	    manipCurrentPose.orientation.x,
-	    manipCurrentPose.orientation.y,
-	    manipCurrentPose.orientation.z,
-	    manipCurrentPose.orientation.w)
-	manipEuler = tf.transformations.euler_from_quaternion(manipQuaternion)
+	manipEuler = quaternionToEuler(manipCurrentPose)
 	manippRoll = manipEuler[0]*180/pi
 	manippPitch = manipEuler[1]*180/pi
 	manippYaw = manipEuler[2]*180/pi
