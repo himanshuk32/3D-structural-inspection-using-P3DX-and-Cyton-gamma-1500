@@ -121,6 +121,8 @@ def rotateBotAngle(angle, currentAngle):
 
 def getLaserData(topic):
 	laserMessage = rospy.wait_for_message(topic, LaserScan, timeout = 0.5)
+	if laserMessage.ranges[0] > 2.5:	
+		return -5
 	return laserMessage.ranges[0]
 	
 def getOdomData(topic):
@@ -154,10 +156,12 @@ def getManipData(groupp):
 	return [manippPos_x, manippPos_y, manippPos_z, manippYaw] 
 
 def laserDataTF(laserDistance, botPose, manipPose):
-	xx = manipPose[0]*cos(deltaa) - manipPose[1]*sin(deltaa) + laserDistance*sin(deltaa+gamma) + botPose[0]
-	yy = manipPose[0]*sin(deltaa) + manipPose[1]*cos(deltaa) - laserDistance*cos(deltaa+gamma) + botPose[1]
-	zz = manipPose[2] - 0.2
-	return [xx, yy, zz]
+	if laserDistance > 0.0:
+		xx = manipPose[0]*cos(deltaa) - manipPose[1]*sin(deltaa) + laserDistance*sin(deltaa+gamma) + botPose[0]
+		yy = manipPose[0]*sin(deltaa) + manipPose[1]*cos(deltaa) - laserDistance*cos(deltaa+gamma) + botPose[1]
+		zz = manipPose[2] - 0.2
+		return [xx, yy, zz]
+	return [-5,-5,-5]
 
 def mapOnRViz(markerr, point):
 	markerr.header.stamp = rospy.get_rostime()
@@ -199,6 +203,7 @@ fsmFlag = 0
 randomFlag = 1
 manipFlag = 0 #1 is for up, 0 is for down
 botReqYaw = 2*pi
+botReqYaw2 = 0.0
 statee = state.rotate
 prevState = state.rotate
 heightt = downHeight
@@ -209,16 +214,23 @@ def finiteStateMachine(laser, odom, manip):
 	global randomFlag
 	global manipFlag
 	global startTime
+	
 	if statee == state.rotate:
 		fsmFlag = rotateBotAngle(botReqYaw, odom[2])
+		if laser > 0.0:
+			botReqYaw2 = odom[2]
 		if fsmFlag:
 			statee = state.moveManipulator
 			manipFlag = 1
-			if randomFlag:
-				randomFlag = 0
-				manipFlag = 0
-				
-	
+			if randomFlag == 1:
+				statee = state.rotate
+				botReqYaw = botReqYaw2
+				randomFlag = 2
+			if randomFlag == 2:
+				statee = state.moveRobotStraight
+				startTime = rospy.get_rostime()
+				randomFlag = 3
+
 	elif statee == state.moveManipulator:
 		if manipFlag:
 			heightt = upwardHeight
@@ -235,7 +247,6 @@ def finiteStateMachine(laser, odom, manip):
 			statee = state.moveManipulator
 			manipFlag = 1 - manipFlag
 
-	print "state ", statee
 while not rospy.is_shutdown():
 	
 	laserDist = getLaserData('/fused_bot/QS18VP6LLP_laser/scan')
