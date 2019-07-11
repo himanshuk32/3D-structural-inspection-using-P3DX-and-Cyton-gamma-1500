@@ -103,9 +103,19 @@ def stopBot():
 def moveBot(linear,angular):
         velPub.publish(Twist(Vector3(linear, 0, 0), Vector3(0, 0, angular)))
 
-def moveStraightForTime(linear,time, startTime):
+def moveStraightForTime(linear, time, startTime):
 	moveBot(linear,0)
 	if rospy.get_rostime().secs - startTime > time:
+		stopBot()
+		print " straight return 1"
+		return 1
+	print " straight return 0"
+	return 0
+
+def moveStraightForDistance(linear, reqDist, startDist, odom):
+	moveBot(linear,0)
+	currentVector = pow((odom[0]*odom[0] + odom[1]*odom[1]),0.5)
+	if abs(currentVector - startDist) > reqDist - 0.05:
 		stopBot()
 		print " straight return 1"
 		return 1
@@ -215,6 +225,7 @@ startTime = 0
 timeeee = 0.5
 
 def finiteStateMachine(laser, odom, manip):
+	
 	global statee
 	global randomFlag
 	global manipFlag
@@ -222,6 +233,7 @@ def finiteStateMachine(laser, odom, manip):
 	global timeeee
 	global botReqYaw
 	global botReqYaw2
+	
 	if statee == state.rotate:
 		fsmFlag = rotateBotAngle(botReqYaw, odom[2])
 		if laser > 0.0:
@@ -239,8 +251,7 @@ def finiteStateMachine(laser, odom, manip):
 				randomFlag = 2
 			if randomFlag == 2:
 				statee = state.moveRobotStraight
-				startTime = rospy.get_rostime()
-				timeeee = laser/0.5
+				startDist = pow((odom[0]*odom[0] + odom[1]*odom[1]),0.5)				
 				randomFlag = 3
 			
 	elif statee == state.moveManipulator:
@@ -255,7 +266,7 @@ def finiteStateMachine(laser, odom, manip):
 			timeeee = 0.15
 			
 	elif statee == state.moveRobotStraight:	
-		fsmFlag = moveStraightForTime(0.5,timeeee,startTime)
+		fsmFlag = moveStraightForDist(0.5,1,startDist,odom)
 		if fsmFlag:
 			statee = state.moveManipulator
 			manipFlag = 1 - manipFlag
@@ -267,7 +278,7 @@ while not rospy.is_shutdown():
 	laserDist = getLaserData('/fused_bot/QS18VP6LLP_laser/scan')
 	odommPose = getOdomData('/fused_bot/odom')
 	manippPose = getManipData(group)
-
+	
 	finiteStateMachine(laserDist, odommPose, manippPose)
 	tfPoint = laserDataTF(laserDist, odommPose, manippPose)
 	mapOnRViz(marker, tfPoint)
