@@ -39,7 +39,7 @@ group = moveit_commander.MoveGroupCommander("cyton1500_group")
 
 defaultPose = [-0.00798111114703, -0.00240289023425, 0.973910607185, 3.55992334659e-05, 2.53591989399e-05, 0.707060385227, 0.707153172752]
 manipPose1 = [0.441024004555, -0.0157218288562, 0.402612554019, 0.527145535299, 0.477387854476, 0.486045011226, 0.50791600494]
-manipPose2 = [0.01, 0.3, 0.55, 0, 0, 0, 0.707]
+manipPose2 = [0.01, -0.3, 0.81, 0, 0, 0, 0.707]
 
 
 pub_line_min_dist = rospy.Publisher('visualization_marker', Marker, queue_size = 1)
@@ -90,8 +90,10 @@ pi = 3.141592635
 
 velPub = rospy.Publisher('/fused_bot/cmd_vel', Twist,queue_size=10)
 
-n = -1
+n = 0
 sign = 1
+directionOfRotation = -1
+
 def toFloat(number,noOfDigits):
 	return float(int(number*pow(10,noOfDigits))/(pow(10,noOfDigits)+0.0))
 
@@ -105,16 +107,18 @@ def moveStraightForTime(linear,time, startTime):
 	moveBot(linear,0)
 	if rospy.get_rostime().secs - startTime > time:
 		stopBot()
+		print " straight return 1"
 		return 1
+	print " straight return 0"
 	return 0
 
 def setManipPose(pose, whichPose):
 	[pose.position.x, pose.position.y, pose.position.z, pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w] = whichPose
 
 def rotateBotAngle(angle, currentAngle):
-	signn = 1
+	global directionOfRotation
 	if currentAngle <= angle - 0.05:
-		moveBot(0,signn*0.55)
+		moveBot(0,directionOfRotation*0.55)
 		return 0
 	stopBot()
 	return 1
@@ -179,15 +183,15 @@ def moveManip(groupp, height):
 	setManipPose(pose, manipPose2)
 	
 	if height >= 0.75:
-		sign = -1
+		sign = 1
 	if height <= 0.55:
-		sign =  1
+		sign = -1
 	n = n + sign
-	pose.position.z = pose.position.z + 0.075*n		
+	pose.position.z = pose.position.z + 0.025*n		
 	groupp.set_pose_target(pose)
 	groupp.go()		
 	print "z ",pose.position.z," n ",n
-	if((pose.position.z >= height and n == -1) or (pose.position.z <= height and n == 1)):
+	if((pose.position.z >= height and sign == 1) or (pose.position.z <= height and sign == -1)):
 		return 1
 	return 0
 	
@@ -204,33 +208,41 @@ randomFlag = 1
 manipFlag = 0 #1 is for up, 0 is for down
 botReqYaw = 2*pi
 botReqYaw2 = 0.0
-statee = state.rotate
+statee = state.moveManipulator
 prevState = state.rotate
 heightt = downHeight
 startTime = 0
+timeeee = 0.5
 
 def finiteStateMachine(laser, odom, manip):
 	global statee
 	global randomFlag
 	global manipFlag
 	global startTime
-	
+	global timeeee
+	global botReqYaw
+	global botReqYaw2
 	if statee == state.rotate:
 		fsmFlag = rotateBotAngle(botReqYaw, odom[2])
 		if laser > 0.0:
 			botReqYaw2 = odom[2]
+			laserAtYaw2 = laser
 		if fsmFlag:
 			statee = state.moveManipulator
 			manipFlag = 1
 			if randomFlag == 1:
 				statee = state.rotate
+				directionOfRotation = 1
+				if botReqYaw2 - botReqYaw >= pi:
+					directionOfRotation = -1
 				botReqYaw = botReqYaw2
 				randomFlag = 2
 			if randomFlag == 2:
 				statee = state.moveRobotStraight
 				startTime = rospy.get_rostime()
+				timeeee = laser/0.5
 				randomFlag = 3
-
+			
 	elif statee == state.moveManipulator:
 		if manipFlag:
 			heightt = upwardHeight
@@ -239,14 +251,17 @@ def finiteStateMachine(laser, odom, manip):
 		fsmFlag = moveManip(group,heightt)
 		if fsmFlag:
 			statee = state.moveRobotStraight
-			startTime = rospy.get_rostime()
+			startTime = rospy.get_rostime().secs
+			timeeee = 0.15
 			
 	elif statee == state.moveRobotStraight:	
-		fsmFlag = moveStraightForTime(0.5,0.5,startTime)
+		fsmFlag = moveStraightForTime(0.5,timeeee,startTime)
 		if fsmFlag:
 			statee = state.moveManipulator
 			manipFlag = 1 - manipFlag
-
+	print "state  	", statee	
+	
+	
 while not rospy.is_shutdown():
 	
 	laserDist = getLaserData('/fused_bot/QS18VP6LLP_laser/scan')
