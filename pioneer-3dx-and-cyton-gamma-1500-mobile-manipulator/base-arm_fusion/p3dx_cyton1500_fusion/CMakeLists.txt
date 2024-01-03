@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3) #Min version might not be correct
-project(robot_fusion)
+project(p3dx_cyton1500_fusion)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -54,7 +54,12 @@ find_package(catkin REQUIRED COMPONENTS
 #  LIBRARIES p3dx_gazebo
 #  CATKIN_DEPENDS gazebo_ros p3dx_control p3dx_description
 #  DEPENDS system_lib
-#)
+catkin_package(
+#  INCLUDE_DIRS include
+#  LIBRARIES p3dx_description
+#  CATKIN_DEPENDS roscpp rospy urdf
+#  DEPENDS system_lib
+)
 
 ###########
 ## Build ##
